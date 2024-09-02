@@ -1,26 +1,29 @@
-import { cn } from "@/lib/utils";
-import Link, { LinkProps } from "next/link";
-import React, { useState, createContext, useContext } from "react";
+import React, { forwardRef, useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { IconMenu2, IconX } from "@tabler/icons-react";
-import { MdWarningAmber } from "react-icons/md";
+import { cn } from "../../app/_lib/utils";
+import Link, { LinkProps } from "next/link";
 
+// Define types for Links
 interface Links {
   label: string;
   href: string;
   icon: React.JSX.Element | React.ReactNode;
 }
 
+// Define types for SidebarContext
 interface SidebarContextProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   animate: boolean;
 }
 
+// Create SidebarContext
 const SidebarContext = createContext<SidebarContextProps | undefined>(
   undefined
 );
 
+// Custom hook to use SidebarContext
 export const useSidebar = () => {
   const context = useContext(SidebarContext);
   if (!context) {
@@ -29,6 +32,7 @@ export const useSidebar = () => {
   return context;
 };
 
+// SidebarProvider component
 export const SidebarProvider = ({
   children,
   open: openProp,
@@ -46,30 +50,30 @@ export const SidebarProvider = ({
   const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
 
   return (
-    <SidebarContext.Provider value={{ open, setOpen, animate: animate }}>
+    <SidebarContext.Provider value={{ open, setOpen, animate }}>
       {children}
     </SidebarContext.Provider>
   );
 };
 
-export const Sidebar = ({
-  children,
-  open,
-  setOpen,
-  animate,
-}: {
+// Sidebar component with forwardRef support
+export const Sidebar = forwardRef<HTMLDivElement, {
   children: React.ReactNode;
   open?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   animate?: boolean;
-}) => {
+}>(({ children, open, setOpen, animate }, ref) => {
   return (
     <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
-      {children}
+      <div ref={ref}>
+        {children}
+      </div>
     </SidebarProvider>
   );
-};
+});
+Sidebar.displayName = 'Sidebar';
 
+// SidebarBody component
 export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
   return (
     <>
@@ -79,6 +83,7 @@ export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
   );
 };
 
+// DesktopSidebar component
 export const DesktopSidebar = ({
   className,
   children,
@@ -88,7 +93,7 @@ export const DesktopSidebar = ({
   return (
     <motion.div
       className={cn(
-        "h-full px-4 py-4 hidden md:flex md:flex-col bg-header-custom text-white w-[300px] flex-shrink-0",
+        "h-full px-4 py-4 hidden md:flex md:flex-col bg-gradient-to-b from-gray-800 to-gray-900 text-white w-[300px] flex-shrink-0 shadow-xl",
         className
       )}
       animate={{
@@ -103,6 +108,7 @@ export const DesktopSidebar = ({
   );
 };
 
+// MobileSidebar component
 export const MobileSidebar = ({
   className,
   children,
@@ -113,7 +119,7 @@ export const MobileSidebar = ({
     <>
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-header-custom text-white w-full"
+          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-gradient-to-b from-gray-800 to-gray-900 text-white w-full shadow-xl"
         )}
         {...props}
       >
@@ -134,7 +140,7 @@ export const MobileSidebar = ({
                 ease: "easeInOut",
               }}
               className={cn(
-                "fixed top-0 left-0 h-full max-w-[250px] bg-header-custom text-white p-6 z-[100] flex flex-col",
+                "fixed top-0 left-0 h-full max-w-[250px] bg-gradient-to-b from-gray-800 to-gray-900 text-white p-6 z-[100] flex flex-col shadow-xl",
                 className
               )}
             >
@@ -153,6 +159,7 @@ export const MobileSidebar = ({
   );
 };
 
+// SidebarLink component
 export const SidebarLink = ({
   link,
   className,
@@ -179,7 +186,7 @@ export const SidebarLink = ({
           display: animate ? (open ? "inline-block" : "none") : "inline-block",
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className="text-white text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+        className="text-white font-medium  text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
       >
         {link.label}
       </motion.span>
